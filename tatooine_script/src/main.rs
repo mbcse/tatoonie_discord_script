@@ -1,17 +1,14 @@
 extern crate reqwest;
 use std::collections::HashMap;
 
-static SERVER_URL:&'static str="http://127.0.0.1:8080/";
-static DISCORD_WEBHOOK_URL:&'static str="https://discord.com/api/webhooks/871390641786073138/r1MugCEl_ONzzymk5ieZIaqBZz66UR6KpgqgzdnYO_jxD-tRcEZ_lYA911yqCriOHzz5";
-
-fn send_discord_update(){
+fn send_discord_update(url:&str){
     let client = reqwest::blocking::Client::new();
 
     let mut body = HashMap::new();
     body.insert("username", "tatoonie_script");
     body.insert("content", "Faucet Server Is Down");
 
-    let resp = client.post(DISCORD_WEBHOOK_URL)
+    let resp = client.post(url)
     .json(&body)
     .send();
 
@@ -31,18 +28,26 @@ fn send_discord_update(){
 }
 
 fn main() {
-  
-   let response = reqwest::blocking::get(SERVER_URL);
+
+   //Configurations
+   let mut settings = config::Config::default();
+   settings.merge(config::File::with_name("config/Settings")).unwrap();
+   let conf=settings.clone().try_into::<HashMap<String, String>>().unwrap(); 
+
+   let faucet_url: &str=conf.get("FAUCET_URL").unwrap();
+   let discord_webhook_url: &str=conf.get("DISCORD_WEBHOOK_URL").unwrap();
+
+   let response = reqwest::blocking::get(faucet_url);
    match response {
       Ok(res)=> {
         if res.status()==reqwest::StatusCode::OK{
             println!("Faucet Server Working Fine {:?}",res.text()); 
         }else{
-            send_discord_update();
+            send_discord_update(discord_webhook_url);
         }  
       },
       Err(..)=> {
-          send_discord_update();
+          send_discord_update(discord_webhook_url);
       }
    }
 
