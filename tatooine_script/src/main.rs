@@ -61,7 +61,7 @@ fn send_serverstatus_update(faucet_url: &str, discord_url: &str){
 fn send_balance_update(faucet_url: &str, discord_url: &str, password: &str){
 
     info!("Checking Balance Status!");
-    
+
     let response = reqwest::blocking::Client::new()
     .get(faucet_url.to_owned() + "/getbalance")
     .basic_auth("discord_script", Some(password)).send();
@@ -85,10 +85,10 @@ fn send_balance_update(faucet_url: &str, discord_url: &str, password: &str){
 fn main() {
    //Logger
     let file;
-    if !Path::new("./tatooine.log").exists(){
-        file = File::create("tatooine.log").unwrap();
+    if !Path::new("./tatooine_discord.log").exists(){
+        file = File::create("tatooine_discord.log").unwrap();
     }else{
-        file = OpenOptions::new().append(true).open("./tatooine.log").unwrap();   
+        file = OpenOptions::new().append(true).open("./tatooine_discord.log").unwrap();   
     }
     CombinedLogger::init(
         vec![
@@ -98,7 +98,7 @@ fn main() {
 
    //Configurations
    let mut settings = config::Config::default();
-   settings.merge(config::File::with_name("config/Settings")).unwrap();
+   settings.merge(config::File::with_name("config/settings")).unwrap();
    let conf = settings.clone().try_into::<HashMap<String, String>>().unwrap(); 
 
    let faucet_url: &str = conf.get("FAUCET_URL").unwrap();
