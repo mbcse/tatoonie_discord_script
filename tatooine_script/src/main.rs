@@ -1,5 +1,6 @@
 extern crate reqwest;
 use std::collections::HashMap;
+use std::env;
 
 fn send_discord_message(discord_url:&str,msg:&str){
     let client = reqwest::blocking::Client::new();
@@ -78,8 +79,17 @@ fn main() {
    let discord_webhook_url: &str=conf.get("DISCORD_WEBHOOK_URL").unwrap();
    let password: &str=conf.get("PASSWORD").unwrap();
 
-   send_serverstatus_update(faucet_url,discord_webhook_url);
-   send_balance_update(faucet_url,discord_webhook_url,password);
-  
+   let args: Vec<String> = env::args().collect();
+   if args.len()==1{
+        eprintln!("Problem parsing arguments: not enough arguments");   
+   }else{
+        match args[1].as_str() {
+            "server"=>send_serverstatus_update(faucet_url,discord_webhook_url),
+            "balance"=>send_balance_update(faucet_url,discord_webhook_url,password),
+            _=>println!("Invalid argument: Use one of the following\nserver: For server status\nbalance: For balance status")
+        }
+   }
+
+   
 
 }
