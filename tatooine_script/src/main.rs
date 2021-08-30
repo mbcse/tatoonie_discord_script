@@ -9,12 +9,15 @@ use std::path::Path;
 use std::fs::OpenOptions;
 
 fn send_discord_message(discord_url: &str, msg: &str){
-    let client = reqwest::blocking::Client::new();
 
+    info!("{:?}", msg);
+
+    let client = reqwest::blocking::Client::new();
     let mut body = HashMap::new();
+
     body.insert("username", "Tatooine_Script");
     body.insert("content", msg);
-
+  
     let resp = client.post(discord_url)
     .json(&body)
     .send();
@@ -35,6 +38,9 @@ fn send_discord_message(discord_url: &str, msg: &str){
 }
 
 fn send_serverstatus_update(faucet_url: &str, discord_url: &str){
+
+    info!("Checking Server Status!");
+
     let response = reqwest::blocking::get(faucet_url);
     match response {
        Ok(res) => {
@@ -53,6 +59,9 @@ fn send_serverstatus_update(faucet_url: &str, discord_url: &str){
 
 
 fn send_balance_update(faucet_url: &str, discord_url: &str, password: &str){
+
+    info!("Checking Balance Status!");
+    
     let response = reqwest::blocking::Client::new()
     .get(faucet_url.to_owned() + "/getbalance")
     .basic_auth("discord_script", Some(password)).send();
@@ -61,7 +70,6 @@ fn send_balance_update(faucet_url: &str, discord_url: &str, password: &str){
        Ok(res) => {
          if res.status() == reqwest::StatusCode::OK{
              let balance: &str = &res.text().unwrap();
-             info!("{:?}", balance);
              send_discord_message(discord_url, balance);
          }else{
              send_discord_message(discord_url, "Can't get the balance, Faucet server may be down!");
