@@ -98,7 +98,7 @@ fn main() {
 
    //Configurations
    let mut settings = config::Config::default();
-   settings.merge(config::File::with_name("config/settings")).unwrap();
+   settings.merge(config::File::with_name("settings")).unwrap();
    let conf = settings.clone().try_into::<HashMap<String, String>>().unwrap(); 
 
    let faucet_url: &str = conf.get("FAUCET_URL").unwrap();
